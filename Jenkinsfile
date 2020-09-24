@@ -1,26 +1,42 @@
 
+@Library('jenkins-shared-library@master') _
+
 pipeline{
     agent {label 'java'}
     environment{
        PATH = "/usr/share/maven/bin:$PATH"
     }
     
-    stage('Git Checkout') {
+    stages{
+       
+        stage('Git Checkout') {
             steps{
                
                 gitCheckout(
+                    
                     branch: "master",
-                    url: "https://github.com/Indianche/simplewebapp.git"
+                    url: "https://github.com/Indianche/multi_branch_with_sharedlibrary_demo.git"
                 )
             }
         }
-    
-    stages{
-          stage("maven build"){
+        
+        stage("maven build"){
             steps{
-                sh "mvn clean package"
+                mavenBuild()
             }   
         } 
+        
+        
+        
+        stage("deploy"){
+            steps{
+                deployTomcat( 
+                    war: "target/java-tomcat-maven-example.war"
+                      )
+                 
+                //step([$class: 'DockerComposeBuilder', dockerComposeFile: 'docker-compose.yml', option: [$class: 'StartAllServices'], useCustomDockerComposeFile: true])
+            }   
+        }
         
         
     }   
